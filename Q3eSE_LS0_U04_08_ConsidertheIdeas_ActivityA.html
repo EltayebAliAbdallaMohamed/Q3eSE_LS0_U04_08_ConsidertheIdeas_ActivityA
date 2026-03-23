@@ -1,0 +1,1284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Template</title>
+  <style>
+    /* Your original CSS unchanged */
+    body {
+      font-family: sans-serif;
+      font-size: larger;
+      font-weight: bold;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 0;
+      padding: 1em;
+      background-color: #f9f9f9;
+      color: #333;
+    }
+    #speak {
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+    main {
+      max-width: 600px;
+      background: white;
+      padding: 1.5em;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    button {
+      background: none;
+      border: 2px solid #0078d4;
+      color: #0078d4;
+      font-size: 20px;
+      margin: 5px;
+      padding: 5px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    button:hover:not(:disabled) {
+      background-color: #0078d4;
+      color: white;
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    input[type="number"] {
+      font-size: 14px;
+      width: 60px;
+      margin-right: 10px;
+      text-align: center;
+    }
+
+    #keyWords {
+      text-align: center;
+      color: #0078d4;
+      font-size: 1.3em;
+      margin-bottom: 10px;
+    }
+
+    #english {
+      color: #444;
+    }
+
+    #q {
+      background: #0078d4;
+      color: white;
+      padding: 3px 8px;
+      border-radius: 4px;
+      display: inline-block;
+      margin-bottom: 10px;
+    }
+
+    .controls {
+      margin-top: 1em;
+      text-align: center;
+    }
+
+    details {
+      margin-top: 0.5em;
+    }
+
+    small {
+      color: #777;
+      font-weight: normal;
+    }
+
+    footer {
+      margin-top: auto;
+      text-align: center;
+      padding: 1em 0;
+      font-size: 0.9em;
+      color: #555;
+    }
+
+    footer span {
+      color: #0078d4;
+      font-weight: bold;
+    }
+
+    section.general.info,
+    section.activity {
+      width: 100%;
+      max-width: 600px;
+      box-sizing: border-box;
+    }
+
+    section.general.info details,
+    section.activity details {
+      display: block;
+      width: 100%;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      padding: 10px;
+      background: white;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+      margin: 0.5em 0;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9em;
+    }
+
+    th, td {
+      border: 1px solid #333;
+      padding: 8px;
+      text-align: center;
+    }
+
+    th {
+      background-color: #f2f2f2;
+    }
+
+    .table-container {
+      overflow-x: auto;
+    }
+    #arabic{
+      direction: rtl;
+      text-align: right;
+    }
+
+    @media (max-width: 480px) {
+      body {
+        padding: 0.6em;
+      }
+      #q { font-size: 0.9em; }
+      button { font-size: 18px; padding: 4px 8px; }
+    }
+    #objectives{
+      color: red;
+    }
+    #questionBasedOnAudio{
+      color: blue;
+      text-align: left;
+    }
+    main {
+      overflow-y: auto;
+    }
+    #questionBasedOnAudio li,
+      #answer li {
+    margin-bottom: 0.8em;
+    }
+    #questionBasedOnAudio ol { padding-left: 1em; }
+    .tts-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 5px;
+      flex-wrap: wrap; /* keeps it mobile-friendly */
+    }
+  </style>
+</head>
+
+<body role="document">
+
+  <!-- Added role="main" -->
+  <main role="main" aria-label="Lesson player interface">
+
+    <p id="speaker" aria-label="Speaker name"></p>
+    <p id="q" aria-live="polite"></p>
+    <p id="keyWords" aria-label="Keywords"></p>
+
+    <details id="definition" aria-label="Definition section">
+      <summary aria-label="Show or hide definition">Definition</summary>
+      <p id="def"></p>
+    </details>
+
+    <details id="illustrations" style="display:none;" aria-label="Illustration section">
+      <summary aria-label="Show or hide illustration">Illustration</summary>
+      <img id="image" alt="Related illustration" width="200" height="200" style="display:none;">
+    </details>
+
+    <details id="englishDetails" aria-label="English explanation">
+      <summary aria-label="Show or hide English explanation">English:</summary>
+      <p id="english"></p>
+    </details>
+
+    <details id="arabicDetails" aria-label="Arabic explanation">
+      <summary aria-label="Show or hide Arabic explanation">Arabic:</summary>
+      <p id="arabic"></p>
+    </details>
+
+    <p id="refer_to_container"><strong>Refer to:</strong> <span id="refer_to"></span></p>
+    <p id="back_to_container"><strong>Back to:</strong> <span id="back_to"></span></p>
+
+    <!-- ARIA enhancement -->
+    <audio id="audio" controls aria-label="Audio player">
+      <source src="" type="audio/mp3" />
+      Your browser does not support the audio element.
+    </audio>
+
+    <hr>
+
+    <div class="controls" role="group" aria-label="Navigation controls">
+
+      <input 
+        type="number" 
+        id="audioIndex" 
+        min="1" 
+        placeholder="#" 
+        aria-label="Enter clip number"
+      />
+
+      <button id="search" aria-label="Search for audio by number">&#128269;</button>
+
+      <button id="prev" aria-label="Previous audio clip">&#9664;</button>
+      <button id="next" aria-label="Next audio clip">&#9654;</button>
+
+      <label aria-label="Autoplay next audio">
+        <input type="checkbox" id="autoPlay" unchecked aria-checked="false" />
+        Auto play next audio clip
+      </label>
+
+      <div id="questionBasedOnAudio"></div>
+    </div>
+
+    <details aria-label="Text-to-speech options">
+      <summary aria-label="Show or hide text-to-speech controls">TTS</summary>
+
+      <div class="tts-buttons" role="group" aria-label="TTS controls">
+        <button id="speak" aria-label="Text to speech: read all text">TTS-All text</button>
+        <button id="stop" aria-label="Stop text to speech">Stop TTS</button>
+        <button id="speakSelection" aria-label="Text to speech: read selected text">TTS-Selected</button>
+      </div>
+    </details>
+     
+    <div>
+      <details id="answerDetails" aria-label="Answer section">
+        <summary aria-label="Show or hide answer">Answer</summary>
+        <div id="answer"></div>
+      </details>
+    </div>
+
+    <hr>
+
+    <small aria-label="Tip: Use arrow keys">💡 Tip: Use ← / → to navigate.</small>
+  </main>
+
+  <footer role="contentinfo">
+    <p>Created by <span>Eltayeb Mohamed</span> | <span>© 2025 Eltayeb Mohamed</span>. All rights reserved.</p>
+  </footer>
+
+  <!-- JS Unchanged except ARIA support integrated where appropriate -->
+  <script>
+    const utterance = new SpeechSynthesisUtterance();
+    let currentAudioIndex = 0;
+
+    const Sentences = [
+      /* your entire array unchanged */
+
+      //1
+            {
+        speaker: `Female 1:`,
+        keyWord: ``,
+        definition: ``,
+        english: `OK. `,
+        arabic: `أوكي`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `ok.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //2
+      {
+        speaker: `Female 1:`,
+        keyWord: ``,
+        definition: ``,
+        english: `What are some enjoyable things to do in your area?`,
+        arabic: `ما هي الأشياء الممتعة التي يمكنك فعلها في منطقتك؟`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `What are some enjoyable things to do in your area.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //3
+      {
+        speaker: `Female 2:`,
+        keyWord: ``,
+        definition: ``,
+        english: `Uh, I really like going to the city park because there are a lot of fun things to do there.`,
+        arabic: `أنا يعجبني  الذهاب إلى حديقة المدينة لأن هناك الكثير من الأشياء الممتعة نفعلها هناك.`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `Uh, I really like going to the city park because there are a lot of fun things to do there.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //4
+      {
+        speaker: `Female 2:`,
+        keyWord: ``,
+        definition: ``,
+        english: `Uh, I really like going to the city park.`,
+        arabic: `أنا يعجبني  الذهاب إلى حديقة المدينة.`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `Uh, I really like going to the city park.mp3`,
+        audioQuestion: ``,  
+        answer: ``,
+        Image:``
+      },
+      //5
+      {
+        speaker: `Female 2:`,
+        keyWord: ``,
+        definition: ``,
+        english: `because there are a lot of fun things to do there.`,
+        arabic: `لأن هناك الكثير من الأشياء الممتعة نفعلها هناك.`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `because there are a lot of fun things to do there.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //6
+      {
+        speaker: `Female 3:`,
+        keyWord: ``,
+        definition: ``,
+        english: `Me too.`,
+        arabic: `أنا أيضا`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `Me too.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //7
+      {
+        speaker: `Female 3:`,
+        keyWord: ``,
+        definition: ``,
+        english: `I like to ride my bike and play tennis there.`,
+        arabic: `أنا يعجبني أن أركب  الدراجة و ألعب الكرة الطائرة هناك.`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `I like to ride my bike and play tennis there.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //8
+      {
+        speaker: `Female 3:`,
+        keyWord: ``,
+        definition: ``,
+        english: `I like to ride my bike.`,
+        arabic: `أنا يعجبني أن أركب  الدراجة.`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `I like to ride my bike.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //9
+      {
+        speaker: `Female 3:`,
+        keyWord: ``,
+        definition: ``,
+        english: `and play tennis there.`,
+        arabic: `و ألعب الكرة الطائرة هناك.`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `and play tennis there.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      
+      //10
+      {
+        speaker: `Female 4:`,
+        keyWord: ``,
+        definition: ``,
+        english: `I love reading books.`,
+        arabic: `أنا أحب قراءة الكتب.`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `I love reading books.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //11
+      {
+        speaker: `Female 4:`,
+        keyWord: ``,
+        definition: ``,
+        english: `so I like to go to the library.`,
+        arabic: `لذلك يعجبني أن أذهب إلى المكتبة`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `so I like to go to the library.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //12
+       
+      //13
+      {
+        speaker: `Female 2:`,
+        keyWord: ``,
+        definition: ``,
+        english: `I do too.`,
+        arabic: `أنا أيضا أفعل ذلك`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `I do too.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //14
+      {
+        speaker: `Female 2:`,
+        keyWord: ``,
+        definition: ``,
+        english: `I go to the library a lot.`,
+        arabic: `أنا أذهب إلى المكتبة كثيراً.`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `I go to the library a lot.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //15
+      {
+        speaker: `Female 2:`,
+        keyWord: ``,
+        definition: ``,
+        english: `Sometimes they have writers who come and read their work aloud.`,
+        arabic: `أحياناً يكون لديهم كتّاب يأتون ويقرأون أعمالهم بصوت عالٍ.`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `Sometimes they have writers who come and read their work aloud.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //16 chunk it into 3 sentences
+       {
+        speaker: `Female 2:`,
+        keyWord: ``,
+        definition: ``,
+        english: `Sometimes`,
+        arabic: `أحياناً .`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `Sometimes.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      }, {
+        speaker: `Female 2:`,
+        keyWord: ``,
+        definition: ``,
+        english: `they have writers who come`,
+        arabic: ` يكون لديهم كتّاب يأتون .`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `they have writers who come.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      }, {
+        speaker: `Female 2:`,
+        keyWord: ``,
+        definition: ``,
+        english: `and read their work aloud.`,
+        arabic: ` ويقرأون أعمالهم بصوت عالٍ.`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `and read their work aloud.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      {
+        speaker: `Female 1:`,
+        keyWord: ``,
+        definition: ``,
+        english: `How about the Modern History Museum?`,
+        arabic: `ماذا عن متحف التاريخ الحديث؟`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `How about the Modern History Museum.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //17
+      {
+        speaker: `Female 1:`,
+        keyWord: ``,
+        definition: ``,
+        english: `I enjoy going there on the weekends sometimes.  `,
+        arabic: `أنا أستمتع بالذهاب إلى هناك في عطلات نهاية الأسبوع أحيانًا.  `,
+        refer_to: ``,
+        back_to: ``,
+        audio: `I enjoy going there on the weekends sometimes.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //18
+      {
+        speaker: `Female 3:`,
+        keyWord: ``,
+        definition: ``,
+        english: `Um, I don’t know.`,
+        arabic: `لا أعرف`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `Um, I don’t know.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //19
+      {
+        speaker: `Female 3:`,
+        keyWord: ``,
+        definition: ``,
+        english: `I don’t really like going to the museum.`,
+        arabic: `لا يعجبني أن أذهب إلى المتحف حقاً.`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `I don’t really like going to the museum.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //20
+      {
+        speaker: `Female 3:`,
+        keyWord: ``,
+        definition: ``,
+        english: `Why do you enjoy it?`,
+        arabic: `لماذا تستمتع به؟`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `Why do you enjoy it.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //21
+      {
+        speaker: `Female 1:`,
+        keyWord: ``,
+        definition: ``,
+        english: `I like the museum because you learn a lot about history.`,
+        arabic: `أحب المتحف لأنه يمكنك تعلم الكثير عن التاريخ.`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `I like the museum because you learn a lot about history.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //22
+      {
+        speaker: `Female 1:`,
+        keyWord: ``,
+        definition: ``,
+        english: `I like the museum`,
+        arabic: `أنا يعجبني المتحف`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `I like the museum.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //23
+       {
+        speaker: `Female 1:`,
+        keyWord: ``,
+        definition: ``,
+        english: `because you learn a lot about history. `,
+        arabic: `لأنك تتعلم الكثير عن التاريخ.`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `because you learn a lot about history.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //24
+      {
+        speaker: `Female 3:`,
+        keyWord: ``,
+        definition: ``,
+        english: `Ok.`,
+        arabic: `حسناً.`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `ok.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //25
+      {
+        speaker: `Female 3:`,
+        keyWord: ``,
+        definition: ``,
+        english: `I see.`,
+        arabic: `أنا أرى. أنا أفهم.`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `I see.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //26
+      {
+        speaker: `Female 3:`,
+        keyWord: ``,
+        definition: ``,
+        english: `So, what’s another activity that is fun or interesting?`,
+        arabic: `إذن، ما هو النشاط الآخر الممتع أو المثير للاهتمام؟`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `So, what’s another activity that is fun or interesting.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //27
+      {
+        speaker: `Female 2:`,
+        keyWord: ``,
+        definition: ``,
+        english: `I really like to go hiking.`,
+        arabic: `أنا يعجبني أن أذهب للتنزه`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `I really like to go hiking.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //28
+      {
+        speaker: `Female 4:`,
+        keyWord: ``,
+        definition: ``,
+        english: `me too.`,
+        arabic: `أنا أيضاً.`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `me too 2.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //29
+      {
+        speaker: `Female 4:`,
+        keyWord: ``,
+        definition: ``,
+        english: `I like the trails near the park.`,
+        arabic: `أنا يعجبني المسارات القريبة من الحديقة.`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `I like the trails near the park.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //30
+      {
+        speaker: `Female 4:`,
+        keyWord: ``,
+        definition: ``,
+        english: `I often go with my friends.`,
+        arabic: `أنا أذهب غالباً مع أصدقائي.`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `I often go with my friends.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //31
+      {
+        speaker: `Female 4:`,
+        keyWord: ``,
+        definition: ``,
+        english: `Sometimes I meet them there after work.`,
+        arabic: `أحياناً أنا ألتقي بهم هناك بعد العمل`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `Sometimes I meet them there after work.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //32
+      {
+        speaker: `Female 1:`,
+        keyWord: ``,
+        definition: ``,
+        english: `Why do you enjoy the trails there？`,
+        arabic: `لماذا تتمتع بالمسارات هناك؟`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `Why do you enjoy the trails there.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //33
+      {
+        speaker: `Female 4:`,
+        keyWord: ``,
+        definition: ``,
+        english: `There are different trails.`,
+        arabic: `هناك مسارات مختلفة`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `There are different trails.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //34
+       {
+        speaker: `Female 4:`,
+        keyWord: ``,
+        definition: ``,
+        english: `You can do a challenging hike.`,
+        arabic: `يمكنك أن تقوم برحلة مشي صعبة`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `You can do a challenging hike.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //35
+      {
+        speaker: `Female 4:`,
+        keyWord: ``,
+        definition: ``,
+        english: `you can do an easy hike.`,
+        arabic: `يمكنك القيام برحلة مشي سهلة.`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `you can do an easy hike.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //36
+      {
+        speaker: `Female 4:`,
+        keyWord: ``,
+        definition: ``,
+        english: `and bring a picnic.`,
+        arabic: `و تحضر  وجبة خفيفة.`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `and bring a picnic.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //37
+      {
+        speaker: `Female 3:`,
+        keyWord: ``,
+        definition: ``,
+        english: `Well, I don’t know.`,
+        arabic: `حسنًا، لا أعرف.`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `Well, I don’t know.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //38
+      {
+        speaker: `Female 3:`,
+        keyWord: ``,
+        definition: ``,
+        english: `I like hiking.`,
+        arabic: `أنا تعجبني الرحلات الجبلية.`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `I like hiking.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //39
+      {
+        speaker: `Female 3:`,
+        keyWord: ``,
+        definition: ``,
+        english: `but I don’t really like eating outdoors.`,
+        arabic: `لكنني لا يعجبني الأكل في الهواء الطلق.`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `but I don’t really like eating outdoors.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //40
+      {
+        speaker: `Female 3:`,
+        keyWord: ``,
+        definition: ``,
+        english: `I don’t either, usually.`,
+        arabic: `أنا لا أيضاً, عادة.`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `I don’t either, usually.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //41
+      {
+        speaker: `Female 2:`,
+        keyWord: ``,
+        definition: ``,
+        english: `I’d also rather go hiking in the mountains.`,
+        arabic: `أنا أيضاً أفضل أن أذهب للتنزه في الجبال.`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `I’d also rather go hiking in the mountains.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //42
+      {
+        speaker: `Female 2:`,
+        keyWord: ``,
+        definition: ``,
+        english: `I really enjoy the views there.`,
+        arabic: `أنا أستمتع حقًا بالمناظر هناك`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `I really enjoy the views there.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //43
+      {
+        speaker: `Female 2:`,
+        keyWord: ``,
+        definition: ``,
+        english: `and the more challenging trails.`,
+        arabic: `والمسارات الأكثر تحديًا.`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `and the more challenging trails.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //44
+      {
+        speaker: `Female 2:`,
+        keyWord: ``,
+        definition: ``,
+        english: `me too.`,
+        arabic: `أنا أيضاً.`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `me too 3.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //45 chunk into 2 sentences
+       {
+        speaker: `Female 2:`,
+        keyWord: ``,
+        definition: ``,
+        english: `The only problem is that it takes longer to get there. `,
+        arabic: `المشكلة الوحيدة هي أن الوصول إلى هناك يستغرق وقتاً أطول`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `The only problem is that it takes longer to get there.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      {
+        speaker: `Female 2:`,
+        keyWord: ``,
+        definition: ``,
+        english: `The only problem is`,
+        arabic: `المشكلة الوحيدة `,
+        refer_to: ``,
+        back_to: ``,
+        audio: `The only problem is.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      {
+        speaker: `Female 2:`,
+        keyWord: ``,
+        definition: ``,
+        english: `that it takes longer to get there. `,
+        arabic: `  هي أن الوصول إلى هناك يستغرق وقتاً أطول`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `that it takes longer to get there.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //46
+      {
+        speaker: `Female 2:`,
+        keyWord: ``,
+        definition: ``,
+        english: `What else do you enjoy doing?`,
+        arabic: `ما هي الأنشطة الأخرى التي تستمتع بفعلها؟`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `What else do you enjoy doing.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //47
+      {
+        speaker: `Female 1:`,
+        keyWord: ``,
+        definition: ``,
+        english: `I like to learn languages.`,
+        arabic: `أنا يعجبني أن أتعلم اللغات.`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `I like to learn languages.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //48
+      {
+        speaker: `Female 1:`,
+        keyWord: ``,
+        definition: ``,
+        english: `Right now I am taking a Spanish class.`,
+        arabic: `الآن أنا أدرس صفًا باللغة الإسبانية.`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `Right now I am taking a Spanish class.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //49
+      {
+        speaker: `Female 2: `,
+        keyWord: ``,
+        definition: ``,
+        english: `That’s interesting.`,
+        arabic: `هذا مثير للاهتمام.`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `That’s interesting.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //50
+      {
+        speaker: `Female 1:`,
+        keyWord: ``,
+        definition: ``,
+        english: `I only know my first language and English.`,
+        arabic: `أنا أعرف لغتي الأولى وأنا أعرف اللغة الإنجليزية.`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `I only know my first language and English.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //51
+      {
+        speaker: `Female 1:`,
+        keyWord: ``,
+        definition: ``,
+        english: `I like computer programming classes.`,
+        arabic: `أنا يعجبني فصول البرمجة بالحاسوب. `,
+        refer_to: ``,
+        back_to: ``,
+        audio: `I like computer programming classes.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //52
+      {
+        speaker: `Female 2:`,
+        keyWord: ``,
+        definition: ``,
+        english: `What about you?`,
+        arabic: `ماذا عنك؟`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `What about you.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //53
+      {
+        speaker: `Female 3:`,
+        keyWord: ``,
+        definition: ``,
+        english: `I’m not sure.`,
+        arabic: `أنا لست متأكداً.`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `I’m not sure.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //54
+      {
+        speaker: `Female 3:`,
+        keyWord: ``,
+        definition: ``,
+        english: `I take enough classes.`,
+        arabic: `أنا أخذ صفوفاً كافية.`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `I take enough classes.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //55
+      {
+        speaker: `Female 3:`,
+        keyWord: ``,
+        definition: ``,
+        english: `Sometimes I just want to do something relaxing like read a book.`,
+        arabic: `أحيانًا أريد فقط أن أفعل شيئًا مريحًا مثل قراءة كتاب.`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `Sometimes I just want to do something relaxing like read a book.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //56
+       {
+        speaker: `Female 3:`,
+        keyWord: ``,
+        definition: ``,
+        english: `Sometimes I just want to do something relaxing `,
+        arabic: `أحيانًا أريد فقط أن أفعل شيئًا مريحًا `,
+        refer_to: ``,
+        back_to: ``,
+        audio: `Sometimes I just want to do something relaxing.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      //57
+      {
+        speaker: `Female 3:`,
+        keyWord: ``,
+        definition: ``,
+        english: `like read a book.`,
+        arabic: `مثل قراءة كتاب.`,
+        refer_to: ``,
+        back_to: ``,
+        audio: `like read a book.mp3`,
+        audioQuestion: ``,
+        answer: ``,
+        Image:``
+      },
+      
+      
+    ];
+
+    const speakSelectionBtn = document.getElementById("speakSelection");
+    const speakBtn = document.getElementById("speak");
+    const stopBtn = document.getElementById("stop");
+
+    const q = document.getElementById("q");
+    const refer_to = document.getElementById("refer_to");
+    const back_to = document.getElementById("back_to");
+    const speaker = document.getElementById("speaker");
+    const keyWords = document.getElementById("keyWords");
+    const def = document.getElementById("def");
+    const english = document.getElementById("english");
+    const arabic = document.getElementById("arabic");
+    const audio = document.getElementById("audio");
+    const image = document.getElementById("image");
+    const illustrationDetails = document.getElementById("illustrations");
+    const questionBasedOnAudio = document.getElementById("questionBasedOnAudio");
+    const audioIndexInput = document.getElementById("audioIndex");
+    const autoPlayCheckbox = document.getElementById("autoPlay");
+
+    const definitionDetails = document.getElementById("definition");
+    const englishDetails = document.getElementById("englishDetails");
+    const arabicDetails = document.getElementById("arabicDetails");
+    const answer = document.getElementById("answer");
+    const answerDetails = document.getElementById("answerDetails");
+    const prevBtn = document.getElementById("prev");
+    const nextBtn = document.getElementById("next");
+
+    speakBtn.addEventListener("click", () => {
+        const s = Sentences[currentAudioIndex];
+        if (s.english?.trim()) {
+            const cleanedText = s.english.replace(/<br\s*\/?>/gi, ' '); 
+            utterance.text = cleanedText;  
+            speechSynthesis.cancel();      
+            speechSynthesis.speak(utterance);
+        }
+    });
+
+    speakSelectionBtn.addEventListener("click", () => {
+      const selectedText = window.getSelection().toString().trim();
+      if (!selectedText) return;
+      utterance.text = selectedText;
+      speechSynthesis.cancel();
+      speechSynthesis.speak(utterance);
+    });
+
+    stopBtn.addEventListener("click", () => {
+      speechSynthesis.cancel();
+    });
+
+    function updateButtonState() {
+      prevBtn.disabled = currentAudioIndex === 0;
+      nextBtn.disabled = currentAudioIndex === Sentences.length - 1;
+    }
+
+    function displayData() {
+      const s = Sentences[currentAudioIndex];
+
+      q.textContent = `${currentAudioIndex + 1}/${Sentences.length}`;
+
+      refer_to.textContent = s.refer_to || "";
+      back_to.textContent = s.back_to || "";
+
+      const referToContainer = document.getElementById("refer_to_container");
+      const backToContainer = document.getElementById("back_to_container");
+
+      referToContainer.style.display = s.refer_to?.trim() ? "block" : "none";
+      backToContainer.style.display = s.back_to?.trim() ? "block" : "none";
+
+      keyWords.innerHTML = s.keyWord || "";
+      speaker.innerHTML = s.speaker || "";
+      def.innerHTML = s.definition || "";
+      english.innerHTML = s.english || "";
+      arabic.innerHTML = s.arabic || "";
+      audio.src = s.audio || "";
+      answer.innerHTML = s.answer || "";
+
+      questionBasedOnAudio.innerHTML = s.audioQuestion?.trim()
+        ? `<details aria-label="Audio question"><summary>Question</summary>${s.audioQuestion}</details>`
+        : "";
+
+      answerDetails.style.display = s.answer?.trim() ? "block" : "none";
+      definitionDetails.style.display = s.definition?.trim() ? "block" : "none";
+      englishDetails.style.display = s.english?.trim() ? "block" : "none";
+      arabicDetails.style.display = s.arabic?.trim() ? "block" : "none";
+
+      if (s.Image && s.Image.trim() !== "" && s.Image !== ".jpg") {
+        image.src = s.Image;
+        image.style.display = "block";
+        illustrationDetails.style.display = "block";
+      } else {
+        image.removeAttribute("src");
+        image.style.display = "none";
+        illustrationDetails.style.display = "none";
+      }
+
+      updateButtonState();
+    }
+
+    function resetDetails() {
+      definitionDetails.open = false;
+      englishDetails.open = true;
+      arabicDetails.open = true;
+      answerDetails.open = false;
+    }
+
+    function nextSentence() {
+      if (currentAudioIndex < Sentences.length - 1) {
+        currentAudioIndex++;
+        displayData();
+        resetDetails();
+        if (autoPlayCheckbox.checked) audio.play().catch(() => {});
+      }
+    }
+
+    function prevSentence() {
+      if (currentAudioIndex > 0) {
+        currentAudioIndex--;
+        displayData();
+        resetDetails();
+        if (autoPlayCheckbox.checked) audio.play().catch(() => {});
+      }
+    }
+
+    nextBtn.addEventListener("click", nextSentence);
+    prevBtn.addEventListener("click", prevSentence);
+
+    document.getElementById("search").addEventListener("click", () => {
+      const index = parseInt(audioIndexInput.value, 10) - 1;
+      if (index >= 0 && index < Sentences.length) {
+        currentAudioIndex = index;
+        displayData();
+      } else {
+        alert(`Enter a number between 1 and ${Sentences.length}`);
+      }
+    });
+
+    audioIndexInput.addEventListener("keydown", e => {
+      if (e.key === "Enter") document.getElementById("search").click();
+    });
+
+    document.addEventListener("keydown", e => {
+      if (e.key === "ArrowRight") nextSentence();
+      if (e.key === "ArrowLeft") prevSentence();
+    });
+
+    displayData();
+  </script>
+</body>
+</html>
